@@ -204,17 +204,5 @@ You can enter:
 -   ✅ Stable MVP
 -   ✅ End-to-end CV → PDF
 -   ✅ Optimization loop validated
--   ✅ GitHub ready
 
 ------------------------------------------------------------------------
-
-## 🔮 Future Roadmap
-
--   Streamlit / Next.js UI
--   Automated email sending
--   Job application tracking
--   Batch multi-job optimization
--   SaaS deployment
-
-------------------------------------------------------------------------
-
