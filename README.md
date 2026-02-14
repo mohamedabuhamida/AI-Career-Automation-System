@@ -1,144 +1,207 @@
 # 🚀 AI Career Automation System
 
-> Multi-Agent AI system that analyzes, optimizes, and assists users in applying to jobs using intelligent orchestration.
+> A production-grade, Multi-Agent AI pipeline that analyzes, scores,
+> optimizes, and generates ATS-friendly CVs tailored to specific job
+> descriptions.
 
----
+------------------------------------------------------------------------
 
 ## 🧠 Overview
 
-This project is an AI-powered career assistant built using:
+**AI Career Automation System** is a graph-orchestrated AI pipeline
+built with LangGraph and LLM-powered agents.
 
-* **FastAPI**
-* **LangGraph**
-* **LLMs**
-* **Sentence Transformers**
-* **Multi-Agent Orchestration**
+It enables candidates to:
 
-The system allows users to:
+-   📊 Analyze CV match against job descriptions
+-   🔍 Identify missing hard skills
+-   🧠 Automatically optimize CV wording & keyword alignment
+-   🔁 Re-score optimized CVs
+-   🖨️ Generate a professional ATS-friendly PDF ready for applications
 
-* Upload or generate a CV
-* Provide a job description
-* Calculate match score
-* Receive improvement suggestions
-* Automatically rewrite the CV
-* Generate job-specific application emails
-* Send email after user confirmation
+The system is deterministic, debuggable, extensible, and
+production-ready.
 
----
+------------------------------------------------------------------------
 
-## 🏗 Architecture
+## ✨ Core Features
 
-The system follows a graph-based multi-agent architecture.
+-   📄 CV Parsing from PDF
+-   🧾 Job Title / URL / Raw Description Input
+-   📊 Strict ATS Match Scoring
+-   🔁 Controlled Optimization Loop (Before vs After scoring)
+-   🧑‍💻 Human-in-the-Loop job selection
+-   🖥️ HTML CV Rendering
+-   🖨️ PDF Generation via wkhtmltopdf
+-   📈 Clear console logging of score improvements
 
-### Main Flow
+------------------------------------------------------------------------
 
-1. CV Parsing / Generation
-2. Job Description Parsing
-3. Match Score Calculation
-4. Conditional Routing
+## 🏗 System Architecture
 
-   * If score ≥ threshold → Email generation
-   * If score < threshold → Suggestion + Rewrite flow
-5. User confirmation before sending email
-6. Optional iterative improvement loop
+### High-Level Pipeline
 
----
+1.  Input Ingestion (CV + Job)
+2.  CVAgent → Structured CV
+3.  JobHunterAgent → Search / Scrape
+4.  JobAnalyzerAgent → Structured Job Requirements
+5.  MatchScorerAgent → Initial ATS Score
+6.  CVOptimizerAgent → Keyword & phrasing enhancement
+7.  Re-Scoring Loop
+8.  HTML Rendering
+9.  PDF Generation
+
+Built using **LangGraph state orchestration** for clean, maintainable
+multi-agent flow.
+
+------------------------------------------------------------------------
 
 ## 🧩 Agents
 
-* CV Parser Agent
-* CV Generator Agent
-* Job Parser Agent
-* Match Score Agent
-* Suggestion Agent
-* Rewrite Agent
-* Email Generation Agent
-* Email Sending Agent
+  Agent               Responsibility
+  ------------------- ---------------------------------------
+  CVAgent             Parse CV PDF into structured schema
+  JobHunterAgent      Search jobs or scrape job URLs
+  JobAnalyzerAgent    Extract structured job requirements
+  MatchScorerAgent    Calculate ATS-style match score
+  CVOptimizerAgent    Improve CV keyword alignment
+  Optimization Node   Controls iterative optimization logic
 
----
+------------------------------------------------------------------------
 
 ## 🛠 Tech Stack
 
-* Python 3.10+
-* FastAPI
-* LangGraph
-* LangChain
-* OpenAI API
-* Sentence Transformers
-* Pydantic
-* PDFPlumber
-* WeasyPrint
+### Core
 
----
+-   Python 3.10+
+-   LangGraph
+-   LangChain
+-   Google Gemini API
+-   Pydantic
 
-## ⚙️ Setup
+### Parsing & Rendering
 
-### 1️⃣ Create Virtual Environment
+-   pdfplumber
+-   wkhtmltopdf
+-   HTML / CSS (ATS-safe)
 
-```bash
-python -m venv venv
-source venv/bin/activate   # mac/linux
-venv\Scripts\activate      # windows
-```
+### Utilities
 
-### 2️⃣ Install Dependencies
+-   python-dotenv
+-   requests
+-   beautifulsoup4
 
-```bash
-pip install -r requirements.txt
-```
-
-### 3️⃣ Add Environment Variables
-
-Create `.env` file:
-
-```
-OPENAI_API_KEY=your_key_here
-GEMINI_API_KEY="YOUR_API_KEY"
-```
-
-### 4️⃣ Run Server
-
-```bash
-uvicorn app.main:app --reload
-```
-
----
+------------------------------------------------------------------------
 
 ## 📂 Project Structure
 
+AI-Career-Automation-System/ │ ├── app/ │ ├── agents/ │ ├── graph/ │ ├──
+schemas/ │ ├── tools/ │ ├── state.py │ └── main.py │ ├──
+requirements.txt ├── .env └── README.md
+
+------------------------------------------------------------------------
+
+## ⚙️ Setup Instructions
+
+### 1️⃣ Clone Repository
+
+``` bash
+git clone https://github.com/mohamedabuhamida/AI-Career-Automation-System.git
+cd AI-Career-Automation-System
 ```
-career-ai/
-│
-├── app/
-│   ├── agents/
-│   ├── tools/
-│   ├── graph/
-│   ├── schemas/
-│   └── main.py
-│
-├── .env
-├── requirements.txt
-└── README.md
+
+### 2️⃣ Create Virtual Environment
+
+``` bash
+python -m venv venv
+venv\Scripts\activate      # Windows
+# source venv/bin/activate   # Linux / macOS
 ```
 
----
+### 3️⃣ Install Dependencies
 
-## 🎯 Current Status
+``` bash
+pip install -r requirements.txt
+```
 
-This is the initial MVP version.
+### 4️⃣ Install wkhtmltopdf (Required for PDF)
 
-Planned improvements:
+Download from: https://wkhtmltopdf.org/downloads.html
 
-* MCP-style tool registry
-* Job recommendation automation
-* Application tracking dashboard
-* Analytics & performance metrics
-* SaaS-ready deployment
+Install to default path:
 
----
+C:`\Program `{=tex}Files`\wkhtmltopdf`{=tex}`\bin`{=tex}`\wkhtmltopdf`{=tex}.exe
 
-## 📌 Vision
+No PATH configuration required (absolute path used internally).
 
-The long-term goal is to build:
+### 5️⃣ Environment Variables
 
-> An AI-powered autonomous career agent that optimizes, matches, and applies to jobs intelligently while keeping the user in control.
+Create `.env` file:
+
+``` env
+GEMINI_API_KEY=YOUR_GEMINI_API_KEY
+```
+
+------------------------------------------------------------------------
+
+## ▶️ Running the System
+
+``` bash
+python -m app.main
+```
+
+You can enter:
+
+-   Job title
+-   Job URL
+-   Full job description
+
+------------------------------------------------------------------------
+
+## 📊 Example Console Output
+
+``` text
+📊 Initial Score: 62
+
+⚙️ Optimization attempt 1
+📊 New Score: 65
+
+⚙️ Optimization attempt 2
+📊 New Score: 65
+
+🏁 Final Optimized Score: 65
+
+📄 PDF generated successfully: optimized_cv.pdf
+```
+
+------------------------------------------------------------------------
+
+## 📌 Design Principles
+
+-   ATS-first formatting
+-   Deterministic optimization logic
+-   Fail-safe structural guards
+-   Transparent scoring
+-   Production-grade architecture
+
+------------------------------------------------------------------------
+
+## 🚧 Current Status
+
+-   ✅ Stable MVP
+-   ✅ End-to-end CV → PDF
+-   ✅ Optimization loop validated
+-   ✅ GitHub ready
+
+------------------------------------------------------------------------
+
+## 🔮 Future Roadmap
+
+-   Streamlit / Next.js UI
+-   Automated email sending
+-   Job application tracking
+-   Batch multi-job optimization
+-   SaaS deployment
+
+------------------------------------------------------------------------
+
