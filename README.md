@@ -95,9 +95,20 @@ multi-agent flow.
 
 ## 📂 Project Structure
 
-AI-Career-Automation-System/ │ ├── app/ │ ├── agents/ │ ├── graph/ │ ├──
-schemas/ │ ├── tools/ │ ├── state.py │ └── main.py │ ├──
-requirements.txt ├── .env └── README.md
+AI-Career-Automation-System/
+│
+├── app/
+│   ├── agents/          # All AI agents
+│   ├── graph/           # LangGraph builder & nodes
+│   ├── schemas/         # Pydantic schemas
+│   ├── tools/           # CV renderer & PDF generator
+│   ├── state.py         # Shared AgentState
+│   └── main.py          # CLI entry point
+│
+├── requirements.txt
+├── .env
+└── README.md
+
 
 ------------------------------------------------------------------------
 
