@@ -1,3 +1,4 @@
+from .job_hunter_agent import JobHunterAgent
+from .job_analyzer_agent import JobAnalyzerAgent
 from .cv_agent import CVAgent
-from .job_agent import JobAgent
-from .llm_match_agent import LLMMatchAgent
+from .match_scorer_agent import MatchScorerAgent

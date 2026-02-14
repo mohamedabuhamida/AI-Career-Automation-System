@@ -1,34 +1,72 @@
-from app.agents import CVAgent
-from app.schemas import CareerState
-from app.agents import JobAgent
-from app.agents import LLMMatchAgent
+from langgraph.graph import END
+from app.state import AgentState
 
 
-def cv_node(state: CareerState) -> CareerState:
-    cv_agent = CVAgent()
-    structured = cv_agent.parse_cv(state.cv_file_path)
-    state.cv_structured = structured
+# --------------------------------------------------
+# INPUT TYPE DETECTION
+# --------------------------------------------------
+def detect_job_input_type(job_input: str) -> str:
+    text = job_input.strip().lower()
+
+    if text.startswith(("http://", "https://")):
+        return "url"
+
+    # JD heuristics
+    if (
+        len(text) > 300
+        or "responsibilities" in text
+        or "requirements" in text
+        or "\n-" in text
+    ):
+        return "text"
+
+    return "title"
+
+
+# --------------------------------------------------
+# INGEST NODE
+# --------------------------------------------------
+def ingest_input_node(state: AgentState) -> AgentState:
+    job_input = state["job_input"]
+
+    job_type = detect_job_input_type(job_input)
+
+    state["job_input_type"] = job_type
+    state["is_job_link"] = (job_type == "url")
+
+    state.setdefault("revision_count", 0)
+    state.setdefault("critique_feedback", [])
+
     return state
 
 
-def job_node(state):
-    agent = JobAgent()
-    structured = agent.parse_job(state.job_description)
-    state.job_structured = structured
-    return state
+# --------------------------------------------------
+# HUMAN IN LOOP NODE (FOR TITLE)
+# --------------------------------------------------
+def human_wait_node(state: AgentState):
+    print("\n🧑‍💻 HUMAN IN THE LOOP REQUIRED")
+    print("Choose one of the following jobs:\n")
 
-def llm_match_node(state):
+    results = state.get("job_search_results", [])
 
-    agent = LLMMatchAgent()
+    for i, job in enumerate(results):
+        title = job.get("title", "Unknown Title")
+        link = job.get("link", "")
+        print(f"[{i}] {title}")
+        print(f"     {link}\n")
 
-    result = agent.match(
-        state.cv_structured,
-        state.job_structured
-    )
+    print("➡️ Awaiting user selection...")
+    return END
 
-    state.match_score = result.match_score
-    state.matched_skills = result.matched_skills
-    state.missing_skills = result.missing_skills
-    state.suggestions = [result.reasoning]
 
-    return state
+# --------------------------------------------------
+# OPTIMIZATION ROUTING (FOR FUTURE)
+# --------------------------------------------------
+def should_optimize(state: AgentState) -> str:
+    score = state.get("match_score", 0)
+    revisions = state.get("revision_count", 0)
+
+    if score >= 75 or revisions >= 3:
+        return "human_feedback"
+
+    return "optimize"

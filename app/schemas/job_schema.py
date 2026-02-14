@@ -1,48 +1,46 @@
 from pydantic import BaseModel, Field
 from typing import List, Optional
 
-
 class JobStructured(BaseModel):
-    title: Optional[str] = Field(
-        default=None,
-        description="Job title or role name."
+    title: str = Field(
+        description="The official job title. Keep it short."
+    )
+    
+    company: Optional[str] = Field(
+        default=None, 
+        description="Name of the hiring company."
+    )
+    
+    summary: str = Field(
+        description="A brief 2-sentence summary of what the role is about."
     )
 
     required_skills: List[str] = Field(
         default_factory=list,
-        description="Mandatory technical skills required for the job."
+        description="List of MUST-HAVE technical skills only (e.g., Python, AWS, Docker)."
     )
 
-    preferred_skills: List[str] = Field(
+    soft_skills: List[str] = Field(
         default_factory=list,
-        description="Optional or nice-to-have skills."
+        description="List of soft skills (e.g., Communication, Leadership)."
     )
 
     responsibilities: List[str] = Field(
         default_factory=list,
-        description="Key job responsibilities."
+        description="Key daily responsibilities."
     )
 
     required_experience_years: Optional[int] = Field(
-        default=None,
-        description="Minimum required years of experience."
+        default=0,
+        description="Minimum years of experience as an integer (e.g., 3). If not found, return 0."
     )
 
-    education_requirements: Optional[str] = Field(
+    education: Optional[str] = Field(
     default=None,
-    description="Required degree. Return short concise text without line breaks."
+    description=(
+        "Minimum required degree ONLY. "
+        "Max 10 words. Example: 'Bachelor in Computer Science'. "
+        "Do NOT include newlines or extra text."
+    )
 )
 
-    salary_range: Optional[str] = Field(
-        default=None,
-        description="Offered salary range for the position."
-    )
-    location: Optional[str] = Field(
-        default=None,
-        description="City and country where the job is located."
-    )
-    company: Optional[str] = Field(
-        default=None,
-        description="Name of the hiring company or organization."
-    )
-    
