@@ -42,5 +42,12 @@ class JobStructured(BaseModel):
         "Max 10 words. Example: 'Bachelor in Computer Science'. "
         "Do NOT include newlines or extra text."
     )
+
+    
+    )
+    contact_email: Optional[str] = Field(
+    default=None,
+    description="Contact email found in the job description if available."
 )
+
 

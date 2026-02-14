@@ -2,6 +2,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 import re
+from typing import Optional
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.messages import SystemMessage, HumanMessage
 from app.schemas.job_schema import JobStructured
@@ -16,30 +17,43 @@ class JobAnalyzerAgent:
         )
 
     # --------------------------------------------------
-    # INPUT CLEANING (VERY IMPORTANT)
+    # EMAIL EXTRACTION (NEW ✅)
+    # --------------------------------------------------
+    @staticmethod
+    def _extract_email(text: str) -> Optional[str]:
+        """
+        Extract first contact email from job description if exists.
+        """
+        if not text:
+            return None
+
+        match = re.search(
+            r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}",
+            text
+        )
+        return match.group(0) if match else None
+
+    # --------------------------------------------------
+    # INPUT CLEANING (NO EMAIL REMOVAL ❗)
     # --------------------------------------------------
     @staticmethod
     def _clean_input(text: str) -> str:
         """
         Cleans raw job description text to:
-        - Remove emails
-        - Remove excessive whitespace/newlines
+        - Normalize whitespace
         - Reduce token usage
+        (Email is intentionally preserved)
         """
         if not text:
             return ""
 
-        # remove emails
-        text = re.sub(r"\S+@\S+", "", text)
-
-        # normalize whitespace
         text = text.replace("\n", " ").replace("\t", " ")
         text = " ".join(text.split())
 
         return text.strip()
 
     # --------------------------------------------------
-    # OUTPUT SANITIZATION (ANTI \n\n\n HELL)
+    # OUTPUT SANITIZATION
     # --------------------------------------------------
     @staticmethod
     def _clean_output(data: dict) -> dict:
@@ -80,6 +94,10 @@ class JobAnalyzerAgent:
     # MAIN ANALYSIS
     # --------------------------------------------------
     def analyze_job_text(self, raw_text: str) -> JobStructured:
+        # ✅ Extract email FIRST
+        contact_email = self._extract_email(raw_text)
+
+        # Clean text for LLM
         cleaned_text = self._clean_input(raw_text)
 
         structured_llm = self.llm.with_structured_output(JobStructured)
@@ -102,7 +120,10 @@ STRICT RULES:
             HumanMessage(content=cleaned_text),
         ])
 
-        # 🔥 HARD SANITIZATION (FINAL GUARANTEE)
+        # Final sanitization
         data = self._clean_output(result.model_dump())
+
+        # ✅ Inject email into schema (optional field)
+        data["contact_email"] = contact_email
 
         return JobStructured(**data)
