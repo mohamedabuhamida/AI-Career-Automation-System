@@ -1,5 +1,3 @@
-# app/agents/critique_agent.py
-
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -30,8 +28,13 @@ class CritiqueAgent:
         )
 
     # --------------------------------------
-    # INTERNAL DATA PREPARATION
+    # INTERNAL HELPERS
     # --------------------------------------
+    @staticmethod
+    def _to_dict(data):
+        """Safely convert Pydantic model to dict"""
+        return data.model_dump() if hasattr(data, "model_dump") else data
+
     @staticmethod
     def _prepare_payload(
         cv_data: Dict[str, Any],
@@ -44,7 +47,9 @@ class CritiqueAgent:
             "candidate_projects": cv_data.get("projects", [])[:5],
             "required_skills": job_data.get("required_skills", []),
             "missing_keywords": missing_keywords,
-            "required_experience_years": job_data.get("required_experience_years", 0),
+            "required_experience_years": job_data.get(
+                "required_experience_years", 0
+            ),
         }
 
     # --------------------------------------
@@ -52,14 +57,22 @@ class CritiqueAgent:
     # --------------------------------------
     def generate_feedback(
         self,
-        cv_data: Dict[str, Any],
-        job_data: Dict[str, Any],
+        cv_data,
+        job_data,
         missing_keywords: List[str],
     ) -> List[str]:
 
+        # 🔥 FIX: normalize inputs
+        cv_dict = self._to_dict(cv_data)
+        job_dict = self._to_dict(job_data)
+
         structured_llm = self.llm.with_structured_output(CritiqueResult)
 
-        payload = self._prepare_payload(cv_data, job_data, missing_keywords)
+        payload = self._prepare_payload(
+            cv_dict,
+            job_dict,
+            missing_keywords
+        )
 
         system_prompt = """
         You are an ATS optimization expert.
@@ -86,27 +99,3 @@ class CritiqueAgent:
         )
 
         return result.feedback
-
-
-# ==========================================
-# LOCAL TEST
-# ==========================================
-if __name__ == "__main__":
-    agent = CritiqueAgent()
-
-    dummy_cv = {
-        "skills": ["Python", "TensorFlow", "Machine Learning"],
-        "projects": ["Built ML model for fraud detection"],
-    }
-
-    dummy_job = {
-        "required_skills": ["Python", "PyTorch", "REST APIs"],
-        "required_experience_years": 2,
-    }
-
-    dummy_missing = ["PyTorch", "REST APIs"]
-
-    feedback = agent.generate_feedback(dummy_cv, dummy_job, dummy_missing)
-    print("\n✅ Critique Feedback:")
-    for item in feedback:
-        print("-", item)
