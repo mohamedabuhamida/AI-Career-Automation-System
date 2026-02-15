@@ -7,6 +7,8 @@ class AgentState(TypedDict, total=False):
     # ======================================================
     cv_file_path: str
     job_input: str
+    user_id: str
+    job_title: str
 
     # ======================================================
     # 🔹 JOB INPUT DETECTION
@@ -49,6 +51,7 @@ class AgentState(TypedDict, total=False):
     # 🔹 FINAL OUTPUTS
     # ======================================================
     final_cv_content: Optional[Dict[str, Any]]
+    cv_html: str
     generated_pdf_path: Optional[str]
     email_draft: Optional[str]
 

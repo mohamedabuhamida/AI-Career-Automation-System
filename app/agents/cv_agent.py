@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.messages import SystemMessage, HumanMessage
 from langchain_community.document_loaders import PyPDFLoader
-
+import requests
 # ==========================================
 # LOCAL IMPORTS
 # ==========================================
@@ -34,18 +34,26 @@ class CVAgent:
         Reads a PDF CV file, extracts text,
         and converts it into a structured JSON object.
         """
+        
+        if file_path.startswith("http"):
+            response = requests.get(file_path)
+            with open("temp_cv.pdf", "wb") as f:
+                f.write(response.content)
+            path = "temp_cv.pdf"
+        else:
+            path = file_path
 
         # ---------- 1. Validate file ----------
-        if not os.path.exists(file_path):
+        if not os.path.exists(path):
             raise FileNotFoundError(
-                f"CV file not found at: {file_path}"
+                f"CV file not found at: {path}"
             )
 
         # ---------- 2. Load & clean PDF ----------
         try:
             print(f"📄 Reading PDF: {file_path}")
 
-            loader = PyPDFLoader(file_path)
+            loader = PyPDFLoader(path)
             pages = loader.load()
 
             raw_text = "\n".join(

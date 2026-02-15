@@ -88,7 +88,7 @@ class JobHunterAgent:
 
             results = self.search_wrapper.results(
                 search_query,
-                max_results=2  # 🔥 مهم
+                max_results=2   
             )
 
             jobs = []

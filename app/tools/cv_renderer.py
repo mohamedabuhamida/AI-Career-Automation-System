@@ -1,96 +1,146 @@
-# app/tools/cv_renderer.py
+# def render_cv_html(cv):
+#     if hasattr(cv, "model_dump"):
+#         data = cv.model_dump()
+#     else:
+#         data = cv
 
-def render_cv_html(cv):
-    if hasattr(cv, "model_dump"):
-        data = cv.model_dump()
-    else:
-        data = cv
+#     skills = data.get("skills", [])
+#     experience = data.get("experience", [])
+#     education = data.get("education", [])
+#     projects = data.get("projects", [])
 
-    skills = data.get("skills", [])
-    experience = data.get("experience", [])
-    education = data.get("education", [])
-    projects = data.get("projects", [])
+#     return f"""
+# <!DOCTYPE html>
+# <html lang="en">
+# <head>
+# <meta charset="UTF-8">
+# <title>{data.get("full_name", "")} - CV</title>
 
-    return f"""
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>{data.get("full_name", "")} - CV</title>
+# <script src="https://cdn.tailwindcss.com"></script>
 
-    <!-- Bootstrap CDN -->
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    >
+# <style>
+# @page {{
+#     size: A4;
+#     margin: 16mm;
+# }}
 
-    <style>
-        body {{
-            font-size: 14px;
-            line-height: 1.6;
-        }}
-        h1, h2, h3 {{
-            color: #0d6efd;
-        }}
-        .section {{
-            margin-bottom: 24px;
-        }}
-    </style>
-</head>
+# body {{
+#     font-family: ui-sans-serif, system-ui, -apple-system;
+# }}
+# </style>
 
-<body class="container my-5">
+# </head>
 
-    <header class="mb-4">
-        <h1>{data.get("full_name", "")}</h1>
-        <p class="text-muted">
-            {data.get("contact", {}).get("email", "")} |
-            {data.get("contact", {}).get("phone", "")} |
-            {data.get("contact", {}).get("location", "")}
-        </p>
-    </header>
+# <body class="bg-white text-gray-800">
 
-    <section class="section">
-        <h2>Professional Summary</h2>
-        <p>{data.get("summary", "")}</p>
-    </section>
+# <div class="max-w-[820px] mx-auto px-10 py-10 text-[13px] leading-relaxed">
 
-    <section class="section">
-        <h2>Skills</h2>
-        <ul class="row">
-            {''.join(f'<li class="col-4">{skill}</li>' for skill in skills)}
-        </ul>
-    </section>
+#     <!-- Header -->
+#     <header class="mb-8">
+#         <h1 class="text-3xl font-bold tracking-tight">
+#             {data.get("full_name", "")}
+#         </h1>
+#         <p class="text-gray-500 mt-2 text-sm">
+#             {data.get("contact", {}).get("email", "")} •
+#             {data.get("contact", {}).get("phone", "")} •
+#             {data.get("contact", {}).get("location", "")}
+#         </p>
+#     </header>
 
-    <section class="section">
-        <h2>Experience</h2>
-        {''.join(f'''
-            <div class="mb-3">
-                <h5>{exp.get("title", "")} – {exp.get("company", "")}</h5>
-                <small class="text-muted">{exp.get("duration", "")}</small>
-                <p>{exp.get("description", "")}</p>
-            </div>
-        ''' for exp in experience if isinstance(exp, dict))}
-    </section>
+#     <!-- Summary -->
+#     <section class="mb-8">
+#         <h2 class="text-sm font-semibold uppercase tracking-widest text-gray-600 mb-3">
+#             Profile
+#         </h2>
+#         <p class="text-gray-700">
+#             {data.get("summary", "")}
+#         </p>
+#     </section>
 
-    <section class="section">
-        <h2>Education</h2>
-        {''.join(f'''
-            <p>
-                <strong>{edu.get("degree", "")}</strong><br>
-                {edu.get("institution", "")} – {edu.get("year", "")}
-            </p>
-        ''' for edu in education if isinstance(edu, dict))}
-    </section>
+#     <!-- Skills as Compact Paragraph Instead of List -->
+#     <section class="mb-8">
+#         <h2 class="text-sm font-semibold uppercase tracking-widest text-gray-600 mb-3">
+#             Core Skills
+#         </h2>
+#         <p class="text-gray-700">
+#             {", ".join(skills)}
+#         </p>
+#     </section>
 
-    <section class="section">
-        <h2>Projects</h2>
-        {''.join(
-            f'<p>{proj}</p>' if isinstance(proj, str)
-            else f'<p><strong>{proj.get("title","")}</strong>: {proj.get("description","")}</p>'
-            for proj in projects
-        )}
-    </section>
+#     <!-- Experience -->
+#     <section class="mb-8">
+#         <h2 class="text-sm font-semibold uppercase tracking-widest text-gray-600 mb-4">
+#             Professional Experience
+#         </h2>
 
-</body>
-</html>
-"""
+#         {''.join(f'''
+#             <div class="mb-6">
+#                 <div class="flex justify-between items-baseline">
+#                     <p class="font-semibold text-gray-900">
+#                         {exp.get("title", "")}
+#                     </p>
+#                     <span class="text-xs text-gray-500">
+#                         {exp.get("duration", "")}
+#                     </span>
+#                 </div>
+
+#                 <p class="text-gray-600 mb-2">
+#                     {exp.get("company", "")}
+#                 </p>
+
+#                 <ul class="list-disc pl-5 space-y-1 text-gray-700">
+#                     {''.join(f"<li>{point}</li>" for point in exp.get("description", [])) if isinstance(exp.get("description"), list)
+#                     else f"<li>{exp.get('description','')}</li>"}
+#                 </ul>
+#             </div>
+#         ''' for exp in experience if isinstance(exp, dict))}
+#     </section>
+
+#     <!-- Projects -->
+#     <section class="mb-8">
+#         <h2 class="text-sm font-semibold uppercase tracking-widest text-gray-600 mb-4">
+#             Selected Projects
+#         </h2>
+
+#         {''.join(f'''
+#             <div class="mb-6">
+#                 <div class="flex justify-between items-baseline">
+#                     <p class="font-semibold text-gray-900">
+#                         {proj.get("title","")}
+#                     </p>
+#                     <span class="text-xs text-gray-500">
+#                         {proj.get("duration","")}
+#                     </span>
+#                 </div>
+
+#                 <ul class="list-disc pl-5 space-y-1 text-gray-700 mt-2">
+#                     {''.join(f"<li>{point}</li>" for point in proj.get("description", [])) if isinstance(proj.get("description"), list)
+#                     else f"<li>{proj.get('description','')}</li>"}
+#                 </ul>
+#             </div>
+#         ''' for proj in projects if isinstance(proj, dict))}
+#     </section>
+
+#     <!-- Education -->
+#     <section>
+#         <h2 class="text-sm font-semibold uppercase tracking-widest text-gray-600 mb-4">
+#             Education
+#         </h2>
+
+#         {''.join(f'''
+#             <div class="mb-4">
+#                 <p class="font-semibold text-gray-900">
+#                     {edu.get("degree", "")}
+#                 </p>
+#                 <p class="text-gray-600 text-sm">
+#                     {edu.get("institution", "")} • {edu.get("year", "")}
+#                 </p>
+#             </div>
+#         ''' for edu in education if isinstance(edu, dict))}
+#     </section>
+
+# </div>
+
+# </body>
+# </html>
+# """
